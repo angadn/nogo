@@ -11,7 +11,7 @@ type Block struct {
 	blocked []chan bool
 	isDone  bool
 
-	l *sync.Mutex
+	l sync.Mutex
 }
 
 func (b Block) Equals(o Block) bool {
