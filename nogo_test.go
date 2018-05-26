@@ -31,4 +31,6 @@ func TestBlockMultipleWait(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	block.Done()
 	wg.Wait()
+	block.Wait()
+	block.Done()
 }
