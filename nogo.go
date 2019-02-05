@@ -7,11 +7,10 @@ import (
 )
 
 type Block struct {
-	name    string
-	blocked []chan bool
-	isDone  bool
+	name string
+	done chan struct{}
 
-	l sync.Mutex
+	once sync.Once
 }
 
 func (b Block) Equals(o Block) bool {
@@ -27,33 +26,21 @@ func (b Block) String() string {
 	return b.name
 }
 
-func NewBlock() Block {
-	ret := Block{}
-	ret.name = uuid.New().String()
-	return ret
-}
-
-func (b *Block) Wait() <-chan bool {
-	b.l.Lock()
-	defer b.l.Unlock()
-	ret := make(chan bool, 1)
-	if b.isDone {
-		ret <- true
-		return ret
+func NewBlock() (block Block) {
+	block = Block{
+		name: uuid.New().String(),
+		done: make(chan struct{}),
 	}
 
-	b.blocked = append(b.blocked, ret)
-	return ret
+	return
+}
+
+func (b *Block) Wait() {
+	<-b.done
 }
 
 func (b *Block) Done() {
-	b.l.Lock()
-	defer b.l.Unlock()
-
-	for _, ch := range b.blocked {
-		ch <- true
-	}
-
-	b.blocked = []chan bool{} // Let those channels get garbage collected
-	b.isDone = true
+	b.once.Do(func() {
+		close(b.done)
+	})
 }
