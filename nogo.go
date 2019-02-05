@@ -8,7 +8,7 @@ import (
 
 type Block struct {
 	name string
-	done chan struct{}
+	wait chan struct{}
 
 	once sync.Once
 }
@@ -29,19 +29,19 @@ func (b Block) String() string {
 func NewBlock() (block Block) {
 	block = Block{
 		name: uuid.New().String(),
-		done: make(chan struct{}),
+		wait: make(chan struct{}),
 	}
 
 	return
 }
 
 func (b *Block) Wait() (wait <-chan struct{}) {
-	wait = b.done
+	wait = b.wait
 	return
 }
 
 func (b *Block) Done() {
 	b.once.Do(func() {
-		close(b.done)
+		close(b.wait)
 	})
 }
