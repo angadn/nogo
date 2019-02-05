@@ -23,7 +23,7 @@ func TestBlockMultipleWait(t *testing.T) {
 	for i := 0; i < 3; i++ {
 		wg.Add(1)
 		go func() {
-			block.Wait()
+			<-block.Wait()
 			wg.Done()
 		}()
 	}

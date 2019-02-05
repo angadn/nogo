@@ -35,8 +35,9 @@ func NewBlock() (block Block) {
 	return
 }
 
-func (b *Block) Wait() {
-	<-b.done
+func (b *Block) Wait() (wait <-chan struct{}) {
+	wait = b.done
+	return
 }
 
 func (b *Block) Done() {
